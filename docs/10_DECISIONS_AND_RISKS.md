@@ -29,7 +29,7 @@ Format: ID, status, context, decision, consequences. Add new entries at the bott
 **Status:** accepted. **Decision:** `results/results.csv`, schema per `05`. **Consequences:** every figure regenerates from one file; schema changes require a protocol version bump.
 
 ### ADR-009. Dependency and tooling choices
-**Status:** open. **To decide:** `uv` vs `pip-tools` for pinning; Celery vs none; hosting target for the demo. Record the choice here when made.
+**Status:** partially accepted (`uv` chosen; worker & hosting open). **Context:** Need reproducible Python 3.11 pins across CPU dev (`homehp`), Colab/Kaggle GPU, and Docker backend. **Decision:** use `uv` (`uv pip compile`) to compile pinned `requirements-research.txt` (CUDA/PyPI), `requirements-research-cpu.txt` (CPU PyTorch index), and `requirements-backend.txt`. Celery vs none and demo hosting target remain open until Sprints 8/10. **Consequences:** fast local installs and standard `pip install -r` compatibility in Colab and Dockerfiles.
 
 ## 2. Risk register
 
@@ -71,12 +71,15 @@ When a dependency is added or its version changes, update this section.
 | Package | Pinned version | Purpose | Added in task |
 |---|---|---|---|
 | ruff | 0.17.6 | Lint and formatting | T-001 |
-| pytest | 8.4.2 | Unit and integration test runner | T-001 |
+| pytest | 9.2.0 | Unit and integration test runner (updated in T-002 for `pytest-asyncio`) | T-001 |
 | mypy | 1.20.2 | Light static type checking | T-001 |
-| anomalib | TBD | Baselines (PatchCore, EfficientAD, WinCLIP) | T-002 |
-| torch | TBD | Deep learning framework | T-002 |
-| fastapi | TBD | Backend API | T-050 |
-| sqlalchemy | TBD | ORM and async DB access | T-050 |
+| anomalib | 2.7.1 | Baselines (`Patchcore`, `EfficientAd`, `WinClip`) via `anomalib[clip]` | T-002 |
+| torch | 2.15.0 (`+cpu` locally) | Deep learning framework | T-002 |
+| torchvision | 0.29.2 (`+cpu` locally) | Vision backbones and transforms | T-002 |
+| faiss-cpu | 1.16.0 | Memory bank kNN search | T-002 |
+| fastapi | 0.165.0 | Backend API (`requirements-backend.txt`) | T-002 |
+| pydantic | 2.14.4 | Schema validation (`requirements-backend.txt`) | T-002 |
+| sqlalchemy | 2.1.9 | ORM and async DB access (`requirements-backend.txt`) | T-002 |
 | react | TBD | Frontend | T-060 |
 
 Fill in exact versions as they are pinned. This table is a quick reference; the lockfiles are the real source of truth.

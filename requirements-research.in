@@ -1,0 +1,15 @@
+# Research pipeline direct dependencies (compiled via uv pip compile).
+# Pin Anomalib so baseline model APIs stay stable across runs.
+anomalib[clip]==2.7.1
+torch>=2.10.0
+torchvision>=0.25.0
+faiss-cpu>=1.8.0
+opencv-python-headless>=4.9.0
+albumentations>=1.4.0
+scikit-image>=0.22.0
+scikit-learn>=1.4.0
+torchmetrics>=1.8.2
+pyyaml>=6.0
+pandas>=2.2.0
+matplotlib>=3.8.0
+seaborn>=0.13.0

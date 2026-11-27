@@ -33,7 +33,9 @@ If documents conflict, trust them in this order: `docs/05_EVALUATION_PROTOCOL.md
 ## Commands (update as they come to exist)
 
 ```bash
-make setup        # create .venv (Python 3.11 via uv/venv) and install dev deps
+make setup           # create .venv (Python 3.11 via uv/venv) and install dev deps
+make setup-research  # install pinned research deps (CPU by default; GPU=1 for CUDA)
+make setup-backend   # install pinned backend API deps
 make lint         # ruff check + ruff format --check + mypy
 make format       # ruff check --fix + ruff format
 make test         # pytest -m "not slow" (fast tests only)
