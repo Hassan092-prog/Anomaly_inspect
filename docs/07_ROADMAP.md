@@ -48,10 +48,10 @@ Assumes about 20 weeks at 10-15 hours/week, organized into **10 two-week sprints
 **Backlog:** T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008
 
 **Definition of Done:**
-- [ ] `make lint && make test` passes in CI
-- [ ] Metric tests pass (perfect predictor → 1.0, constant → ~0.5 AUROC, AUPRO toy case matches hand-computed value)
-- [ ] `python -m research.data.make_splits --dataset mvtec` writes deterministic split files
-- [ ] Results writer appends a valid row matching the schema in `05`
+- [x] `make lint && make test` passes locally (`49 passed`, `ruff`/`mypy` clean; CI workflow configured in `.github/workflows/ci.yml`)
+- [x] Metric tests pass (perfect predictor → 1.0, constant → ~0.5 AUROC, AUPRO toy case matches hand-computed value and real `mvtec/bottle` reference check passes)
+- [x] `python -m research.data.make_splits --dataset mvtec --root data/mvtec_ad --category bottle` writes deterministic split files
+- [x] Results writer appends a valid row matching the schema in `05`
 
 **Sprint Review:** owner runs `make test` themselves, inspects split files, verifies AUPRO test logic.
 
@@ -224,7 +224,7 @@ After each sprint, record actual vs planned story points (or task count) here:
 
 | Sprint | Planned | Completed | Carried Over | Notes |
 |---|---|---|---|---|
-| S1 | 8 tasks | — | — | — |
+| S1 | 8 tasks | 8 tasks | 0 | All 8 completed (`T-001`–`T-008`); `mvtec/bottle` staged locally |
 | S2 | 2 tasks | — | — | — |
 | S3 | 4 tasks | — | — | — |
 | S4 | 4 tasks | — | — | — |

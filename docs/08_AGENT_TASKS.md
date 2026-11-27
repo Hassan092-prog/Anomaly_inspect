@@ -168,23 +168,17 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 
 > **Update this section at the start of each sprint.** Move the current sprint's tasks here with any additional notes, priorities, or adjustments.
 
-### Active Sprint: S1 — Project Foundations (Weeks 1-2)
+### Active Sprint: S2 — First Baseline Working (Weeks 3-4)
 
-**Sprint Goal:** Get a working development environment where `make lint && make test` passes, datasets load correctly, all core metrics are implemented and tested, and the results writer can append valid rows.
+**Sprint Goal:** Get PatchCore running end-to-end through Anomalib on one category (`bottle`), producing all metrics and a valid results row, and build the latency/memory profiler.
 
 **Priority order & status:**
-1. `DONE` — T-001 — Repo scaffold (`b07bf4e` on `main`)
-2. `DONE` — T-002 — Environment and deps (`94eb59d` on `main`)
-3. `DONE` — T-003 — Seed utility and config loader (`research/common/seed.py`, `config.py`)
-4. `DONE` — T-006 — Basic metrics (`research/metrics/classification.py`)
-5. `DONE` — T-008 — Results writer (`research/common/results.py`)
-6. `DONE` — T-004 — Dataset wrappers (`research/data/datasets.py`, `scripts/download_data.md`)
-7. `DONE` — T-007 — AUPRO (`research/metrics/aupro.py`, `research/tests/test_aupro.py`, verified vs Anomalib on `mvtec/bottle`)
-8. `DONE` — T-005 — Split creation (`research/data/make_splits.py`)
+1. `TODO` — T-010 — PatchCore runner through Anomalib (`REVIEW GATE` — plan first; depends on T-004..T-008)
+2. `TODO` — T-015 — Profiler (latency p50/p95, peak mem, bank size; depends on T-010)
 
-**Blockers:** none (mvtec/bottle staged under `data/mvtec_ad/bottle` with splits generated).
+**Blockers:** none (`mvtec/bottle` staged under `data/mvtec_ad/bottle` with splits under `data/splits/mvtec/bottle/`).
 
-**Carry-over from previous sprint:** N/A
+**Carry-over from previous sprint:** none (S1 closed 8/8; see `docs/retros/sprint_1.md`).
 
 ## 5. Sprint Review Checklist (use at end of every sprint)
 

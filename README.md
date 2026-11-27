@@ -2,7 +2,7 @@
 
 > Learn only from **normal** images. Detect and localize **unseen** defects. Show how reliable the prediction is.
 
-**Status:** Sprint 1 in progress (`T-001`–`T-002` complete: repo scaffold, CI, pinned research/backend environments, and Colab setup). Replace this line as sprints finish.
+**Status:** Sprint 1 complete (`T-001`–`T-008`: repo scaffold, pinned environments, seed/config, MVTec/VisA dataset & split wrappers, AUROC/F1-max/AUPRO metrics, results writer); starting Sprint 2 (`T-010` PatchCore baseline on `mvtec/bottle`, `T-015` profiler).
 
 ## What this is
 
