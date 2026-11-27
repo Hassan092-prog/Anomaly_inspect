@@ -36,7 +36,7 @@ jobs:
         run: ruff format --check .
 
       - name: Run mypy
-        run: mypy research/common research/metrics research/fusion backend/app
+        run: mypy research/common research/data research/metrics research/fusion backend/app
 
       - name: Run fast tests
         run: pytest -m "not slow"
