@@ -66,7 +66,7 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 
 | ID | Task | Status | Depends | Definition of Done |
 |---|---|---|---|---|
-| T-001 | Repo scaffold, Makefile, ruff/pytest config, `.gitignore`, `.env.example` | `TODO` | none | `make lint test` runs on an empty-but-valid tree; CI workflow green |
+| T-001 | Repo scaffold, Makefile, ruff/pytest config, `.gitignore`, `.env.example` | `DONE` | none | `make lint test` runs on an empty-but-valid tree; CI workflow green |
 | T-002 | Environment files and pinned deps for research and backend | `TODO` | T-001 | Fresh env installs; versions pinned; Colab setup cell documented |
 | T-003 | Seed utility and config loader (YAML to dataclass) | `TODO` | T-001 | Test proves same seed gives same tensor sequence |
 | T-004 | Dataset wrappers for MVTec AD and VisA (images, masks, labels) | `TODO` | T-002 | Loader returns expected counts per category; masks aligned with images |

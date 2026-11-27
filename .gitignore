@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+
+# Environments and tool caches
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Environment variables and secrets (keep .env.example)
+.env
+.env.*
+!.env.example
+
+# Datasets, weights, memory banks, runtime artifacts, and uploads
+/data/
+/artifacts/
+/runs/
+/uploads/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.npz
+*.npy
+*.bin
+*.safetensors
+
+# Results: commit small CSVs only, ignore large generated artifacts
+/results/*
+!/results/.gitkeep
+!/results/*.csv
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Notebooks, OS, and editors
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
