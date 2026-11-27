@@ -172,17 +172,17 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 
 **Sprint Goal:** Get a working development environment where `make lint && make test` passes, datasets load correctly, all core metrics are implemented and tested, and the results writer can append valid rows.
 
-**Priority order:**
-1. T-001 — Repo scaffold (unblocks everything)
-2. T-002 — Environment and deps (unblocks data loading)
-3. T-003 — Seed utility (small, independent)
-4. T-006 — Basic metrics (independent of data)
-5. T-008 — Results writer (independent)
-6. T-004 — Dataset wrappers (needs T-002)
-7. T-007 — AUPRO (`REVIEW GATE` — plan first; toy tests need T-006, category cross-check needs T-004)
-8. T-005 — Split creation (needs T-004)
+**Priority order & status:**
+1. `DONE` — T-001 — Repo scaffold (`b07bf4e` on `main`)
+2. `TODO` — T-002 — Environment and deps (next; unblocks data loading)
+3. `TODO` — T-003 — Seed utility (small, independent)
+4. `TODO` — T-006 — Basic metrics (independent of data)
+5. `TODO` — T-008 — Results writer (independent)
+6. `TODO` — T-004 — Dataset wrappers (needs T-002)
+7. `TODO` — T-007 — AUPRO (`REVIEW GATE` — plan first; toy tests need T-006, category cross-check needs T-004)
+8. `TODO` — T-005 — Split creation (needs T-004)
 
-**Blockers:** none (first sprint)
+**Blockers:** awaiting owner approval of `uv` + proposed dependency list for `T-002` (`AGENTS.md` rule #5).
 
 **Carry-over from previous sprint:** N/A
 

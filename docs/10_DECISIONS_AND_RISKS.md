@@ -70,6 +70,9 @@ When a dependency is added or its version changes, update this section.
 
 | Package | Pinned version | Purpose | Added in task |
 |---|---|---|---|
+| ruff | 0.17.6 | Lint and formatting | T-001 |
+| pytest | 8.4.2 | Unit and integration test runner | T-001 |
+| mypy | 1.20.2 | Light static type checking | T-001 |
 | anomalib | TBD | Baselines (PatchCore, EfficientAD, WinCLIP) | T-002 |
 | torch | TBD | Deep learning framework | T-002 |
 | fastapi | TBD | Backend API | T-050 |

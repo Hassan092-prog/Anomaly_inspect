@@ -2,7 +2,7 @@
 
 > Learn only from **normal** images. Detect and localize **unseen** defects. Show how reliable the prediction is.
 
-**Status:** planning complete, Sprint 1 ready to start. Replace this line as sprints finish.
+**Status:** Sprint 1 in progress (`T-001` complete: repo scaffold, `Makefile`, lint/test harness, and CI workflow). Replace this line as sprints finish.
 
 ## What this is
 
@@ -31,7 +31,10 @@
 
 ```
 anomaly-inspect/
+├── .github/workflows/ # CI pipeline (ruff, mypy, pytest)
 ├── docs/              # Full documentation set (11 files, see map above)
+├── notebooks/         # Colab/Kaggle setup templates
+├── scripts/           # Data download guides and utilities
 ├── research/          # Research pipeline: benchmarks, fusion, metrics, analysis
 │   ├── common/        # Seed, config, results writer
 │   ├── data/          # Dataset wrappers, splits, few-shot sampler
@@ -43,21 +46,24 @@ anomaly-inspect/
 │   ├── configs/       # One YAML per experiment run
 │   └── analysis/      # Notebooks, plot scripts, experiment log
 ├── backend/           # FastAPI + SQLAlchemy + Alembic
-├── frontend/          # React 18 + TypeScript + Vite
+├── frontend/          # React 18 + TypeScript + Vite (Sprint 9)
 ├── artifacts/         # Trained model artifacts (git-ignored)
 ├── data/              # Datasets (git-ignored)
+├── runs/              # Per-run config/env snapshots (git-ignored)
 ├── results/           # Experiment result CSVs (committed)
-├── Makefile           # setup, lint, test, bench, report, up
-└── docker-compose.yml # One-command platform deployment
+├── pyproject.toml     # Package metadata, ruff, pytest, and mypy config
+├── Makefile           # setup, lint, format, test, bench, report, up
+└── docker-compose.yml # One-command platform deployment (Sprint 10)
 ```
 
 ## Quickstart (fill in as built)
 
 ```bash
-# 1. Research environment
+# 1. Local dev environment (Python 3.11 + lint/test tools)
+make setup && make lint && make test
 # 2. Download datasets (see docs/02_TRD.md, section Data)
-# 3. Run one baseline:  python -m research.benchmarks.run --model patchcore --dataset mvtec --category bottle
-# 4. Run the platform:  docker compose up
+# 3. Run one baseline (Sprint 2):  python -m research.benchmarks.run --model patchcore --dataset mvtec --category bottle
+# 4. Run the platform (Sprint 10): docker compose up
 ```
 
 ## Results (fill in with real numbers only)

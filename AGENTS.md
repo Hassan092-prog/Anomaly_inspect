@@ -33,12 +33,14 @@ If documents conflict, trust them in this order: `docs/05_EVALUATION_PROTOCOL.md
 ## Commands (update as they come to exist)
 
 ```bash
-make setup        # create env, install deps
-make lint         # ruff + type check
-make test         # pytest (fast tests only)
+make setup        # create .venv (Python 3.11 via uv/venv) and install dev deps
+make lint         # ruff check + ruff format --check + mypy
+make format       # ruff check --fix + ruff format
+make test         # pytest -m "not slow" (fast tests only)
 make test-all     # includes slow/GPU tests
-make bench ARGS="--model patchcore --dataset mvtec --category bottle"
-make up           # docker compose up (api, frontend, db)
+make bench ARGS="--model patchcore --dataset mvtec --category bottle"  # wired in T-010
+make report       # regenerate tables/figures from results/ (wired in T-016)
+make up           # docker compose up --build (wired in T-070)
 ```
 
 ## How to work on a task (Agile Sprint Workflow)
