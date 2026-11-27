@@ -71,7 +71,7 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 | T-003 | Seed utility and config loader (YAML to dataclass) | `DONE` | T-001 | Test proves same seed gives same tensor sequence |
 | T-004 | Dataset wrappers for MVTec AD and VisA (images, masks, labels) | `TODO` | T-002 | Loader returns expected counts per category; masks aligned with images |
 | T-005 | Split creation (val-normal, few-shot subsets) | `TODO` | T-004 | Deterministic JSON files; rerun is byte-identical; no overlap between val and train-fit |
-| T-006 | Metrics: image AUROC, pixel AUROC, F1-max | `TODO` | T-001 | Unit tests for perfect/random/inverted predictors |
+| T-006 | Metrics: image AUROC, pixel AUROC, F1-max | `DONE` | T-001 | Unit tests for perfect/random/inverted predictors |
 | T-007 | Metric: AUPRO (own implementation) `REVIEW GATE` `OWNER-VERIFY` | `TODO` | T-006 | Toy-case test matches hand-computed value; cross-check against a reference on one category within tolerance |
 | T-008 | Results writer and schema validation | `TODO` | T-001 | Row appended matches schema in `05`; invalid row raises |
 
@@ -176,7 +176,7 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 1. `DONE` — T-001 — Repo scaffold (`b07bf4e` on `main`)
 2. `DONE` — T-002 — Environment and deps (`94eb59d` on `main`)
 3. `DONE` — T-003 — Seed utility and config loader (`research/common/seed.py`, `config.py`)
-4. `TODO` — T-006 — Basic metrics (next; independent of data)
+4. `DONE` — T-006 — Basic metrics (`research/metrics/classification.py`)
 5. `TODO` — T-008 — Results writer (independent)
 6. `TODO` — T-004 — Dataset wrappers (needs T-002)
 7. `TODO` — T-007 — AUPRO (`REVIEW GATE` — plan first; toy tests need T-006, category cross-check needs T-004)
