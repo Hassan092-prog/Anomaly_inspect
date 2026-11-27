@@ -68,7 +68,7 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 |---|---|---|---|---|
 | T-001 | Repo scaffold, Makefile, ruff/pytest config, `.gitignore`, `.env.example` | `DONE` | none | `make lint test` runs on an empty-but-valid tree; CI workflow green |
 | T-002 | Environment files and pinned deps for research and backend | `DONE` | T-001 | Fresh env installs; versions pinned; Colab setup cell documented |
-| T-003 | Seed utility and config loader (YAML to dataclass) | `TODO` | T-001 | Test proves same seed gives same tensor sequence |
+| T-003 | Seed utility and config loader (YAML to dataclass) | `DONE` | T-001 | Test proves same seed gives same tensor sequence |
 | T-004 | Dataset wrappers for MVTec AD and VisA (images, masks, labels) | `TODO` | T-002 | Loader returns expected counts per category; masks aligned with images |
 | T-005 | Split creation (val-normal, few-shot subsets) | `TODO` | T-004 | Deterministic JSON files; rerun is byte-identical; no overlap between val and train-fit |
 | T-006 | Metrics: image AUROC, pixel AUROC, F1-max | `TODO` | T-001 | Unit tests for perfect/random/inverted predictors |
@@ -174,9 +174,9 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 
 **Priority order & status:**
 1. `DONE` — T-001 — Repo scaffold (`b07bf4e` on `main`)
-2. `DONE` — T-002 — Environment and deps (`requirements-*.in/.txt`, `notebooks/colab_setup.py`)
-3. `TODO` — T-003 — Seed utility (next; small, independent)
-4. `TODO` — T-006 — Basic metrics (independent of data)
+2. `DONE` — T-002 — Environment and deps (`94eb59d` on `main`)
+3. `DONE` — T-003 — Seed utility and config loader (`research/common/seed.py`, `config.py`)
+4. `TODO` — T-006 — Basic metrics (next; independent of data)
 5. `TODO` — T-008 — Results writer (independent)
 6. `TODO` — T-004 — Dataset wrappers (needs T-002)
 7. `TODO` — T-007 — AUPRO (`REVIEW GATE` — plan first; toy tests need T-006, category cross-check needs T-004)

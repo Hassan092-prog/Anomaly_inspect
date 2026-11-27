@@ -19,11 +19,15 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-research-cpu.txt
+            requirements-backend.txt
 
-      - name: Install package and dev dependencies
+      - name: Install package and pinned dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          pip install -r requirements-research-cpu.txt -r requirements-backend.txt -e ".[dev]"
 
       - name: Run ruff check
         run: ruff check .
@@ -32,7 +36,7 @@ jobs:
         run: ruff format --check .
 
       - name: Run mypy
-        run: mypy research/metrics research/fusion backend/app
+        run: mypy research/common research/metrics research/fusion backend/app
 
       - name: Run fast tests
         run: pytest -m "not slow"

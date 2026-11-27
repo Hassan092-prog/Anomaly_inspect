@@ -59,7 +59,7 @@ setup-backend: setup
 lint:
 	$(RUFF) check .
 	$(RUFF) format --check .
-	$(MYPY) research/metrics research/fusion backend/app
+	$(MYPY) research/common research/metrics research/fusion backend/app
 
 format:
 	$(RUFF) check --fix .
