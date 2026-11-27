@@ -26,13 +26,12 @@
 | [docs/08_AGENT_TASKS.md](docs/08_AGENT_TASKS.md) | Sprint backlogs, task definitions, Scrum templates | Executing sprints with AI agent |
 | [docs/09_TESTING_AND_QUALITY.md](docs/09_TESTING_AND_QUALITY.md) | Test strategy, CI, definition of done | Before merging anything |
 | [docs/10_DECISIONS_AND_RISKS.md](docs/10_DECISIONS_AND_RISKS.md) | ADR log, risk register, cut list | When a decision or problem arises |
-| [docs/11_RESUME_AND_INTERVIEW.md](docs/11_RESUME_AND_INTERVIEW.md) | Resume bullets, interview prep | Final polish |
 
 ## Repository structure
 
 ```
 anomaly-inspect/
-├── docs/              # Full documentation set (12 files, see map above)
+├── docs/              # Full documentation set (11 files, see map above)
 ├── research/          # Research pipeline: benchmarks, fusion, metrics, analysis
 │   ├── common/        # Seed, config, results writer
 │   ├── data/          # Dataset wrappers, splits, few-shot sampler
