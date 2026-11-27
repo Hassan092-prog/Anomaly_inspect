@@ -70,7 +70,7 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 | T-002 | Environment files and pinned deps for research and backend | `DONE` | T-001 | Fresh env installs; versions pinned; Colab setup cell documented |
 | T-003 | Seed utility and config loader (YAML to dataclass) | `DONE` | T-001 | Test proves same seed gives same tensor sequence |
 | T-004 | Dataset wrappers for MVTec AD and VisA (images, masks, labels) | `DONE` | T-002 | Loader returns expected counts per category; masks aligned with images |
-| T-005 | Split creation (val-normal, few-shot subsets) | `TODO` | T-004 | Deterministic JSON files; rerun is byte-identical; no overlap between val and train-fit |
+| T-005 | Split creation (val-normal, few-shot subsets) | `DONE` | T-004 | Deterministic JSON files; rerun is byte-identical; no overlap between val and train-fit |
 | T-006 | Metrics: image AUROC, pixel AUROC, F1-max | `DONE` | T-001 | Unit tests for perfect/random/inverted predictors |
 | T-007 | Metric: AUPRO (own implementation) `REVIEW GATE` `OWNER-VERIFY` | `TODO` | T-006 | Toy-case test matches hand-computed value; cross-check against a reference on one category within tolerance |
 | T-008 | Results writer and schema validation | `DONE` | T-001 | Row appended matches schema in `05`; invalid row raises |
@@ -180,9 +180,9 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 5. `DONE` — T-008 — Results writer (`research/common/results.py`)
 6. `DONE` — T-004 — Dataset wrappers (`research/data/datasets.py`, `scripts/download_data.md`)
 7. `TODO` — T-007 — AUPRO (`REVIEW GATE` — plan first; toy tests need T-006, category cross-check needs T-004)
-8. `TODO` — T-005 — Split creation (needs T-004)
+8. `DONE` — T-005 — Split creation (`research/data/make_splits.py`)
 
-**Blockers:** none (`T-004` real-data verification will need MVTec AD / VisA dataset paths; unit tests use synthetic fixtures).
+**Blockers:** none (for `T-007`, toy-case tests run offline; real-category cross-check awaits placing MVTec AD under `data/mvtec_ad`).
 
 **Carry-over from previous sprint:** N/A
 
