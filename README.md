@@ -2,7 +2,7 @@
 
 > Learn only from **normal** images. Detect and localize **unseen** defects. Show how reliable the prediction is.
 
-**Status:** Sprint 1 in progress (`T-001` complete: repo scaffold, `Makefile`, lint/test harness, and CI workflow). Replace this line as sprints finish.
+**Status:** Sprint 1 in progress (`T-001`–`T-002` complete: repo scaffold, CI, pinned research/backend environments, and Colab setup). Replace this line as sprints finish.
 
 ## What this is
 
@@ -33,7 +33,7 @@
 anomaly-inspect/
 ├── .github/workflows/ # CI pipeline (ruff, mypy, pytest)
 ├── docs/              # Full documentation set (11 files, see map above)
-├── notebooks/         # Colab/Kaggle setup templates
+├── notebooks/         # Colab/Kaggle setup template (colab_setup.py)
 ├── scripts/           # Data download guides and utilities
 ├── research/          # Research pipeline: benchmarks, fusion, metrics, analysis
 │   ├── common/        # Seed, config, results writer
@@ -52,15 +52,16 @@ anomaly-inspect/
 ├── runs/              # Per-run config/env snapshots (git-ignored)
 ├── results/           # Experiment result CSVs (committed)
 ├── pyproject.toml     # Package metadata, ruff, pytest, and mypy config
-├── Makefile           # setup, lint, format, test, bench, report, up
+├── requirements-*.txt # Pinned deps (research, research-cpu, backend)
+├── Makefile           # setup, setup-research, setup-backend, lint, test, bench, report, up
 └── docker-compose.yml # One-command platform deployment (Sprint 10)
 ```
 
 ## Quickstart (fill in as built)
 
 ```bash
-# 1. Local dev environment (Python 3.11 + lint/test tools)
-make setup && make lint && make test
+# 1. Local dev / research environment (Python 3.11; CPU by default, pass GPU=1 for CUDA)
+make setup-research && make lint && make test
 # 2. Download datasets (see docs/02_TRD.md, section Data)
 # 3. Run one baseline (Sprint 2):  python -m research.benchmarks.run --model patchcore --dataset mvtec --category bottle
 # 4. Run the platform (Sprint 10): docker compose up

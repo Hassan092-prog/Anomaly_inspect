@@ -1,6 +1,6 @@
 # 02. Technical Requirements Document (TRD)
 
-> Version numbers below are starting points. Verify against what you actually install and record the final pins in `requirements.lock` / `package-lock.json`. Anomalib's API changes between releases (class names, config style); check the installed version's docs before coding against it.
+> Version numbers below are starting points. Final pins live in `requirements-research.txt`, `requirements-research-cpu.txt`, and `requirements-backend.txt` (plus `package-lock.json` for frontend). Verified `anomalib==2.7.1` (`anomalib[clip]`) exports `Patchcore`, `EfficientAd`, `WinClip`, `Engine`, `MVTecAD`, and `Visa`.
 
 ## 1. Stack
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | Language | Python 3.11 | Matches Colab/Kaggle well |
 | DL | PyTorch 2.x, torchvision | Pin to the CUDA build available on your runtime |
-| AD library | Anomalib (pin one version) | Baselines: PatchCore, EfficientAD, WinCLIP |
+| AD library | Anomalib (`2.7.1`, `[clip]` extra) | Baselines: `Patchcore`, `EfficientAd`, `WinClip` |
 | CV | OpenCV, albumentations, scikit-image | Corruptions, contours, post-processing |
 | Vector search | faiss-cpu (or `torch.cdist` in chunks) | For custom per-layer memory banks and kNN |
 | Metrics | scikit-learn, torchmetrics, own AUPRO | AUPRO is implemented and unit-tested by you |
