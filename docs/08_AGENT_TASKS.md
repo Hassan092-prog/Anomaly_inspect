@@ -73,7 +73,7 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 | T-005 | Split creation (val-normal, few-shot subsets) | `TODO` | T-004 | Deterministic JSON files; rerun is byte-identical; no overlap between val and train-fit |
 | T-006 | Metrics: image AUROC, pixel AUROC, F1-max | `DONE` | T-001 | Unit tests for perfect/random/inverted predictors |
 | T-007 | Metric: AUPRO (own implementation) `REVIEW GATE` `OWNER-VERIFY` | `TODO` | T-006 | Toy-case test matches hand-computed value; cross-check against a reference on one category within tolerance |
-| T-008 | Results writer and schema validation | `TODO` | T-001 | Row appended matches schema in `05`; invalid row raises |
+| T-008 | Results writer and schema validation | `DONE` | T-001 | Row appended matches schema in `05`; invalid row raises |
 
 ### Sprint 2 — First Baseline Working
 
@@ -177,12 +177,12 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 2. `DONE` — T-002 — Environment and deps (`94eb59d` on `main`)
 3. `DONE` — T-003 — Seed utility and config loader (`research/common/seed.py`, `config.py`)
 4. `DONE` — T-006 — Basic metrics (`research/metrics/classification.py`)
-5. `TODO` — T-008 — Results writer (independent)
-6. `TODO` — T-004 — Dataset wrappers (needs T-002)
+5. `DONE` — T-008 — Results writer (`research/common/results.py`)
+6. `TODO` — T-004 — Dataset wrappers (next; needs MVTec AD / VisA data for real verification)
 7. `TODO` — T-007 — AUPRO (`REVIEW GATE` — plan first; toy tests need T-006, category cross-check needs T-004)
 8. `TODO` — T-005 — Split creation (needs T-004)
 
-**Blockers:** none (`T-003`, `T-006`, `T-008` can start immediately; `T-004` will need MVTec AD / VisA dataset paths).
+**Blockers:** none (`T-004` real-data verification will need MVTec AD / VisA dataset paths; unit tests use synthetic fixtures).
 
 **Carry-over from previous sprint:** N/A
 
