@@ -64,8 +64,8 @@ Assumes about 20 weeks at 10-15 hours/week, organized into **10 two-week sprints
 **Backlog:** T-010, T-015
 
 **Definition of Done:**
-- [ ] PatchCore on `bottle` produces image AUROC, pixel AUROC, AUPRO, F1-max, and a results CSV row
-- [ ] Profiler records latency (p50/p95) and memory for PatchCore on documented hardware
+- [x] PatchCore on `bottle` produces image AUROC, pixel AUROC, AUPRO, F1-max, and a results CSV row (`1.0000` / `0.9799` / `0.9224` / `1.0000` image, `0.7108` pixel)
+- [x] Profiler records latency (p50/p95) and memory for PatchCore on documented hardware (`679.36 ms` p50 / `818.99 ms` p95 / `176.85 MB` on `cpu (x86_64)`)
 
 **Sprint Review:** owner reads the results row, checks metrics against published PatchCore numbers for bottle, verifies no test leakage in the runner code.
 
@@ -225,7 +225,7 @@ After each sprint, record actual vs planned story points (or task count) here:
 | Sprint | Planned | Completed | Carried Over | Notes |
 |---|---|---|---|---|
 | S1 | 8 tasks | 8 tasks | 0 | All 8 completed (`T-001`–`T-008`); `mvtec/bottle` staged locally |
-| S2 | 2 tasks | — | — | — |
+| S2 | 2 tasks | 2 tasks | 0 | PatchCore `mvtec/bottle` (`1.0000`/`0.9799`/`0.9224`) + CPU profiler (`679.36 ms` p50) |
 | S3 | 4 tasks | — | — | — |
 | S4 | 4 tasks | — | — | — |
 | S5 | 5 tasks | — | — | — |

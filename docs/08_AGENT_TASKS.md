@@ -168,17 +168,19 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 
 > **Update this section at the start of each sprint.** Move the current sprint's tasks here with any additional notes, priorities, or adjustments.
 
-### Active Sprint: S2 — First Baseline Working (Weeks 3-4)
+### Active Sprint: S3 — All Baselines on MVTec (Weeks 5-6)
 
-**Sprint Goal:** Get PatchCore running end-to-end through Anomalib on one category (`bottle`), producing all metrics and a valid results row, and build the latency/memory profiler.
+**Sprint Goal:** Complete EfficientAD and WinCLIP runners, run all three models across MVTec and VisA categories via a resumable sweep orchestrator, and regenerate tables/figures cleanly via `make report`.
 
 **Priority order & status:**
-1. `DONE` — T-010 — PatchCore runner through Anomalib (`research/benchmarks/patchcore_runner.py`, `results/results.csv` row on `mvtec/bottle`)
-2. `DONE` — T-015 — Profiler (`research/benchmarks/profiler.py`, `mvtec/bottle` profiled on `homehp` CPU)
+1. `TODO` — T-011 — EfficientAD runner (S variant; depends on T-010)
+2. `TODO` — T-012 — WinCLIP runner (zero-shot `k=0` and few-shot reference; depends on T-010)
+3. `TODO` — T-013 — Sweep orchestrator over categories and datasets, resumable (depends on T-010..T-012)
+4. `TODO` — T-016 — Aggregation and plotting scripts (`make report`; depends on T-013)
 
-**Blockers:** none (`mvtec/bottle` staged under `data/mvtec_ad/bottle` with splits under `data/splits/mvtec/bottle/`).
+**Blockers:** Full MVTec AD (~5 GB) & VisA (~10 GB) staging on Google Drive / Colab GPU needed before full multi-category sweep (`T-013`); local `T-011`/`T-012`/`T-013`/`T-016` implementation and synthetic CPU tests are unblocked.
 
-**Carry-over from previous sprint:** none (S1 closed 8/8; see `docs/retros/sprint_1.md`).
+**Carry-over from previous sprint:** none (S2 closed 2/2; see `docs/retros/sprint_2.md`).
 
 ## 5. Sprint Review Checklist (use at end of every sprint)
 

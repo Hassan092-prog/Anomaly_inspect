@@ -2,7 +2,7 @@
 
 > Learn only from **normal** images. Detect and localize **unseen** defects. Show how reliable the prediction is.
 
-**Status:** Sprint 1 complete (`T-001`–`T-008`: repo scaffold, pinned environments, seed/config, MVTec/VisA dataset & split wrappers, AUROC/F1-max/AUPRO metrics, results writer); starting Sprint 2 (`T-010` PatchCore baseline on `mvtec/bottle`, `T-015` profiler).
+**Status:** Sprint 2 complete (`T-010` PatchCore baseline on `mvtec/bottle`, `T-015` profiler); starting Sprint 3 (`T-011` EfficientAD, `T-012` WinCLIP, `T-013` resumable sweep orchestrator, `T-016` `make report`).
 
 ## What this is
 
