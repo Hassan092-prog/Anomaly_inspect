@@ -31,6 +31,12 @@ Format: ID, status, context, decision, consequences. Add new entries at the bott
 ### ADR-009. Dependency and tooling choices
 **Status:** partially accepted (`uv` chosen; worker & hosting open). **Context:** Need reproducible Python 3.11 pins across CPU dev (`homehp`), Colab/Kaggle GPU, and Docker backend. **Decision:** use `uv` (`uv pip compile`) to compile pinned `requirements-research.txt` (CUDA/PyPI), `requirements-research-cpu.txt` (CPU PyTorch index), and `requirements-backend.txt`. Celery vs none and demo hosting target remain open until Sprints 8/10. **Consequences:** fast local installs and standard `pip install -r` compatibility in Colab and Dockerfiles.
 
+### ADR-010. Custom AUPRO uses 8-connectivity, exact global sort, and fail-loud validation
+**Status:** accepted (`T-007`). **Context:** Both `anomalib==2.7.1` CPU (`cv2.connectedComponents`) and GPU (`kornia.contrib.connected_components`) label 8-connected components, whereas Anomalib silently returns `0.0` on degenerate inputs. **Decision:** `research/metrics/aupro.py` uses `skimage.measure.label(..., connectivity=2)` (8-connected default, `1` optional), exact global descending sort + trapezoidal integration with `f2 > f1` interpolation guard, and raises `ValueError` on empty/non-binary/non-finite/single-class inputs. **Consequences:** matches Anomalib `_AUPRO` within `<= 1e-5` on synthetic and real `mvtec/bottle` masks while failing loudly on malformed batches.
+
+### ADR-011. Bypass Anomalib DataModule splits and default PreProcessor crop behavior
+**Status:** accepted (`T-010` prep). **Context:** Inspecting `anomalib==2.7.1` revealed that `MVTecAD` and `Visa` both default `val_split_mode=ValSplitMode.SAME_AS_TEST`, `Patchcore` default `pre_processor=True` omits center-cropping (`center_crop_size=None`), and `Engine` defaults `default_root_dir="results"`. **Decision:** runners feed pre-aligned tensors from `research/data/datasets.py` and `data/splits/` with `pre_processor=False` (or explicit `256 -> 224` crop config) and route Lightning outputs to `runs/`, never `results/`. **Consequences:** prevents test leakage, mask misalignment, and `results/` pollution across baselines.
+
 ## 2. Risk register
 
 | # | Risk | Likelihood | Impact | Mitigation | Trigger to act |
@@ -77,6 +83,9 @@ When a dependency is added or its version changes, update this section.
 | torch | 2.15.0 (`+cpu` locally) | Deep learning framework | T-002 |
 | torchvision | 0.29.2 (`+cpu` locally) | Vision backbones and transforms | T-002 |
 | faiss-cpu | 1.16.0 | Memory bank kNN search | T-002 |
+| scikit-learn | 1.9.1 | AUROC and precision-recall (`F1-max`) metrics | T-002 / T-006 |
+| scikit-image | 0.26.0 | 2D connected components for `AUPRO` | T-002 / T-007 |
+| opencv-python-headless | 5.1.0.95 | Image resizing and mask preprocessing | T-002 / T-004 |
 | fastapi | 0.165.0 | Backend API (`requirements-backend.txt`) | T-002 |
 | pydantic | 2.14.4 | Schema validation (`requirements-backend.txt`) | T-002 |
 | sqlalchemy | 2.1.9 | ORM and async DB access (`requirements-backend.txt`) | T-002 |

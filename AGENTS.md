@@ -67,3 +67,4 @@ This project uses **Agile Scrum** with 2-week sprints. See `docs/07_ROADMAP.md` 
 - MVTec AD `train/` contains only normal images; any validation split of normals must be carved from it with a fixed seed.
 - Few-shot subsets are sampled from the **normal training images only**, with 3 seeds.
 - Corruptions apply to **test images only**, photometric only (no geometric transforms that would misalign masks).
+- Anomalib `2.7.1` `MVTecAD`/`Visa` datamodules default to `ValSplitMode.SAME_AS_TEST`, `Patchcore(pre_processor=True)` skips center cropping (`center_crop_size=None`), and `Engine` writes to `results/` by default — feed `data/splits/` via `AnomalyImageDataset` (`256 -> 224`) and set `default_root_dir` under `runs/`.

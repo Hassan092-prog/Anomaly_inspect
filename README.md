@@ -62,7 +62,7 @@ anomaly-inspect/
 ```bash
 # 1. Local dev / research environment (Python 3.11; CPU by default, pass GPU=1 for CUDA)
 make setup-research && make lint && make test
-# 2. Download datasets (see docs/02_TRD.md, section Data)
+# 2. Download datasets (see scripts/download_data.md and docs/02_TRD.md, section Data)
 # 3. Run one baseline (Sprint 2):  python -m research.benchmarks.run --model patchcore --dataset mvtec --category bottle
 # 4. Run the platform (Sprint 10): docker compose up
 ```
