@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import json
+import sys
 from pathlib import Path
 
 import pytest
 import torch
 from anomalib.models.image.patchcore.torch_model import PatchcoreModel
 
+from research.benchmarks.profiler import (
+    _main as profiler_cli_main,
+)
 from research.benchmarks.profiler import (
     count_parameters,
     load_patchcore_model_from_artifact,
@@ -16,6 +21,7 @@ from research.benchmarks.profiler import (
     profile_patchcore_artifact,
     resolve_device_string,
 )
+from research.common.results import read_results
 
 
 def test_profile_inference_counts_warmup_and_timed_runs(tmp_path: Path) -> None:
@@ -127,3 +133,85 @@ def test_profile_patchcore_artifact_round_trip(tmp_path: Path) -> None:
     assert result.bank_size_mb is not None and result.bank_size_mb > 0.0
     assert result.memory_bank_tensor_mb is not None and result.memory_bank_tensor_mb > 0.0
     assert result.param_count == count_parameters(loaded)
+
+
+def test_profiler_rejects_malformed_or_empty_checkpoint_and_cli_reads_threshold(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reject empty/incomplete checkpoints and preserve threshold.json method via CLI."""
+    empty_dir = tmp_path / "empty_bank"
+    empty_dir.mkdir(parents=True)
+    tiny = PatchcoreModel(
+        backbone="resnet18", layers=["layer2"], pre_trained=False, num_neighbors=2
+    )
+    torch.save(
+        {
+            "backbone": "resnet18",
+            "layers": ["layer2"],
+            "num_neighbors": 2,
+            "state_dict": tiny.state_dict(),
+        },
+        empty_dir / "model.pt",
+    )
+    with pytest.raises(ValueError, match="empty"):
+        load_patchcore_model_from_artifact(empty_dir, device="cpu")
+
+    bad_dir = tmp_path / "bad_payload"
+    bad_dir.mkdir(parents=True)
+    torch.save({"state_dict": {}}, bad_dir / "model.pt")
+    with pytest.raises(ValueError, match="Malformed"):
+        load_patchcore_model_from_artifact(bad_dir, device="cpu")
+
+    art_dir = tmp_path / "valid_art"
+    art_dir.mkdir(parents=True)
+    tiny.memory_bank = torch.randn((8, 128), dtype=torch.float32)
+    torch.save(
+        {
+            "backbone": "resnet18",
+            "layers": ["layer2"],
+            "num_neighbors": 2,
+            "preprocess": {"crop_size": 32},
+            "state_dict": tiny.state_dict(),
+        },
+        art_dir / "model.pt",
+    )
+    (art_dir / "meta.json").write_text(
+        json.dumps(
+            {
+                "model": "patchcore",
+                "backbone": "resnet18",
+                "dataset": "mvtec",
+                "category": "bottle",
+                "seed": 0,
+                "k_shot": "full",
+                "git_sha": "abc123",
+            }
+        ),
+        encoding="utf-8",
+    )
+    (art_dir / "threshold.json").write_text(json.dumps({"method": "mean_3std"}), encoding="utf-8")
+
+    csv_path = tmp_path / "results.csv"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "profiler",
+            "--artifact-dir",
+            str(art_dir),
+            "--device",
+            "cpu",
+            "--warmup",
+            "1",
+            "--runs",
+            "2",
+            "--results-csv",
+            str(csv_path),
+        ],
+    )
+    profiler_cli_main()
+    rows = read_results(csv_path)
+    assert len(rows) == 1
+    assert rows[0].threshold_type == "mean_3std"
+    assert rows[0].run_id.startswith("profile_patchcore_mvtec_bottle_20")

@@ -9,6 +9,7 @@ import sys
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -75,7 +76,11 @@ def _sync_if_cuda(device: torch.device) -> None:
 
 
 def _measure_peak_memory_mb(device: torch.device) -> float:
-    """Return peak allocated VRAM (MiB) on CUDA or process high-water RSS (MiB) on CPU."""
+    """Return peak allocated VRAM (MiB) on CUDA or process high-water RSS (MiB) on CPU.
+
+    Note: on Linux/macOS CPU, ``resource.getrusage`` reports the process lifetime
+    maximum RSS, so running profiling in a standalone process isolates inference memory.
+    """
     if device.type == "cuda":
         return float(torch.cuda.max_memory_allocated(device)) / (1024.0 * 1024.0)
     if sys.platform.startswith("linux"):
@@ -196,7 +201,8 @@ def load_patchcore_model_from_artifact(
 
     exec_device, _ = resolve_device_string(device)
     payload = torch.load(model_path, map_location=exec_device, weights_only=True)
-    if not isinstance(payload, dict) or "state_dict" not in payload:
+    required_keys = {"state_dict", "backbone", "layers", "num_neighbors"}
+    if not isinstance(payload, dict) or not required_keys.issubset(payload.keys()):
         raise ValueError(f"Malformed PatchCore checkpoint payload in {model_path}")
 
     patchcore_model = PatchcoreModel(
@@ -206,6 +212,8 @@ def load_patchcore_model_from_artifact(
         num_neighbors=int(payload["num_neighbors"]),
     )
     patchcore_model.load_state_dict(payload["state_dict"])
+    if patchcore_model.memory_bank.numel() == 0:
+        raise ValueError(f"Loaded PatchCore memory_bank is empty in {model_path}")
     patchcore_model.eval()
     patchcore_model.to(torch.device(exec_device))
     return patchcore_model, payload, model_path
@@ -297,8 +305,15 @@ def _main() -> None:
         if not meta_path.is_file():
             raise FileNotFoundError(f"Artifact metadata required for CSV append: {meta_path}")
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        threshold_path = args.artifact_dir / "threshold.json"
+        threshold_method = "val_p99"
+        if threshold_path.is_file():
+            threshold_method = str(
+                json.loads(threshold_path.read_text(encoding="utf-8")).get("method", "val_p99")
+            )
+        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         row = ResultRow(
-            run_id=f"profile_{meta['model']}_{meta['dataset']}_{meta['category']}",
+            run_id=f"profile_{meta['model']}_{meta['dataset']}_{meta['category']}_{stamp}",
             git_sha=str(meta.get("git_sha", "unknown")),
             timestamp=utc_timestamp_iso(),
             model=str(meta["model"]),
@@ -311,7 +326,7 @@ def _main() -> None:
             severity=0,
             fusion="none",
             fusion_signals="",
-            threshold_type="val_p99",
+            threshold_type=threshold_method,
             device=result.device,
             latency_ms_p50=result.latency_ms_p50,
             latency_ms_p95=result.latency_ms_p95,
@@ -332,11 +347,17 @@ def _main() -> None:
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
+        disk_str = f"{result.bank_size_mb:.2f}MB" if result.bank_size_mb is not None else "n/a"
+        tensor_str = (
+            f"{result.memory_bank_tensor_mb:.2f}MB"
+            if result.memory_bank_tensor_mb is not None
+            else "n/a"
+        )
         print(
             f"[profile] {args.artifact_dir} on {result.device}: "
             f"p50={result.latency_ms_p50:.2f}ms, p95={result.latency_ms_p95:.2f}ms, "
-            f"peak_mem={result.peak_mem_mb:.1f}MB, disk={result.bank_size_mb:.2f}MB, "
-            f"bank_tensor={result.memory_bank_tensor_mb:.2f}MB, params={result.param_count}"
+            f"peak_mem={result.peak_mem_mb:.1f}MB, disk={disk_str}, "
+            f"bank_tensor={tensor_str}, params={result.param_count}"
         )
 
 
