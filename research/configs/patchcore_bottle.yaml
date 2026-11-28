@@ -1,0 +1,42 @@
+experiment_name: patchcore_mvtec_bottle_seed0
+seed: 0
+deterministic: true
+threshold_method: val_p99
+output_dir: runs
+results_csv: results/results.csv
+
+data:
+  dataset: mvtec
+  category: bottle
+  data_dir: data
+  val_fraction: 0.15
+  val_seed: 0
+  k_shot: full
+
+preprocess:
+  resize: 256
+  crop_size: 224
+  normalize_mean: [0.485, 0.456, 0.406]
+  normalize_std: [0.229, 0.224, 0.225]
+
+model:
+  name: patchcore
+  backbone: wide_resnet50_2
+  coreset_sampling_ratio: 0.1
+  layers: [layer2, layer3]
+  params:
+    num_neighbors: 9
+    batch_size: 16
+    num_workers: 0
+    pre_trained: true
+
+fusion:
+  method: none
+  signals: []
+  temperature: 1.0
+  weights: null
+
+shift:
+  corruption: none
+  severity: 0
+  recipes_path: research/shift/recipes.yaml
