@@ -6,6 +6,7 @@ import argparse
 from dataclasses import replace
 from pathlib import Path
 
+from research.benchmarks.efficientad_runner import run_efficientad_experiment
 from research.benchmarks.patchcore_runner import run_patchcore_experiment
 from research.common.config import ExperimentConfig, load_config, validate_config
 from research.common.results import ResultRow
@@ -62,8 +63,13 @@ def run_from_config(
         return run_patchcore_experiment(
             cfg, device=device, write_results=write_results, profile=profile
         )
+    if cfg.model.name in {"efficientad_s", "efficientad"}:
+        return run_efficientad_experiment(
+            cfg, device=device, write_results=write_results, profile=profile
+        )
     raise ValueError(
-        f"Unsupported benchmark model {cfg.model.name!r} (only 'patchcore' in Sprint 2)"
+        f"Unsupported benchmark model {cfg.model.name!r} "
+        "(supported: 'patchcore', 'efficientad_s', 'efficientad')"
     )
 
 

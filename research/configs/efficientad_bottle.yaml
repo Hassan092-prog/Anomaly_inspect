@@ -1,0 +1,51 @@
+experiment_name: efficientad_s_mvtec_bottle_seed0
+seed: 0
+deterministic: true
+threshold_method: val_p99
+output_dir: runs
+results_csv: results/results.csv
+
+data:
+  dataset: mvtec
+  category: bottle
+  data_dir: data
+  val_fraction: 0.15
+  val_seed: 0
+  k_shot: full
+
+preprocess:
+  resize: 256
+  crop_size: 256
+  # EfficientAd applies ImageNet normalization internally in PDN forward passes
+  # and requires unnormalized [0, 1] inputs for the autoencoder and ImageNette loss.
+  normalize_mean: [0.0, 0.0, 0.0]
+  normalize_std: [1.0, 1.0, 1.0]
+
+model:
+  name: efficientad_s
+  backbone: pdn_small
+  coreset_sampling_ratio: 1.0
+  layers: []
+  params:
+    model_size: small
+    teacher_out_channels: 384
+    lr: 0.0001
+    weight_decay: 0.00001
+    padding: false
+    pad_maps: true
+    imagenet_dir: data/imagenette
+    max_epochs: 10
+    max_steps: 2000
+    eval_batch_size: 16
+    num_workers: 0
+
+fusion:
+  method: none
+  signals: []
+  temperature: 1.0
+  weights: null
+
+shift:
+  corruption: none
+  severity: 0
+  recipes_path: research/shift/recipes.yaml

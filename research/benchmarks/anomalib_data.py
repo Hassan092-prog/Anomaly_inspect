@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import torch
-from anomalib.data import ImageBatch
+from anomalib.data import AnomalibDataModule, ImageBatch
 from torch.utils.data import DataLoader
 
 from research.common.config import ExperimentConfig
@@ -75,6 +75,8 @@ def load_split_dataloaders(
     cfg: ExperimentConfig,
     *,
     batch_size: int = 16,
+    eval_batch_size: int | None = None,
+    train_shuffle: bool = False,
     num_workers: int = 0,
     create_splits_if_missing: bool = True,
 ) -> SplitDataLoaders:
@@ -86,6 +88,9 @@ def load_split_dataloaders(
     """
     if batch_size <= 0:
         raise ValueError(f"batch_size must be positive, got {batch_size}")
+    resolved_eval_bs = batch_size if eval_batch_size is None else eval_batch_size
+    if resolved_eval_bs <= 0:
+        raise ValueError(f"eval_batch_size must be positive, got {resolved_eval_bs}")
     if num_workers < 0:
         raise ValueError(f"num_workers must be >= 0, got {num_workers}")
 
@@ -149,7 +154,7 @@ def load_split_dataloaders(
         train_loader = DataLoader(
             train_ds,
             batch_size=batch_size,
-            shuffle=False,
+            shuffle=train_shuffle,
             num_workers=num_workers,
             collate_fn=collate_image_batch,
         )
@@ -158,14 +163,14 @@ def load_split_dataloaders(
     test_ds = AnomalyImageDataset(test_records, preprocess=cfg.preprocess)
     val_loader: DataLoader[Any] = DataLoader(
         val_ds,
-        batch_size=batch_size,
+        batch_size=resolved_eval_bs,
         shuffle=False,
         num_workers=num_workers,
         collate_fn=collate_image_batch,
     )
     test_loader: DataLoader[Any] = DataLoader(
         test_ds,
-        batch_size=batch_size,
+        batch_size=resolved_eval_bs,
         shuffle=False,
         num_workers=num_workers,
         collate_fn=collate_image_batch,
@@ -179,3 +184,65 @@ def load_split_dataloaders(
         val_records=tuple(val_records),
         test_records=tuple(test_records),
     )
+
+
+class SplitLightningDataModule(AnomalibDataModule):
+    """Minimal ``AnomalibDataModule`` wrapping pre-verified ``SplitDataLoaders``.
+
+    Required for Anomalib models (such as ``EfficientAd``) that query
+    ``trainer.datamodule.train_batch_size``, ``train_dataloader()``, and
+    ``val_dataloader()`` directly, while bypassing Anomalib's built-in split logic.
+    """
+
+    def __init__(
+        self,
+        *,
+        name: str,
+        category: str,
+        splits: SplitDataLoaders,
+        train_batch_size: int = 1,
+        eval_batch_size: int = 16,
+        num_workers: int = 0,
+    ) -> None:
+        super().__init__(
+            train_batch_size=train_batch_size,
+            eval_batch_size=eval_batch_size,
+            num_workers=num_workers,
+            val_split_mode="none",
+            test_split_mode="none",
+        )
+        if splits.train_fit is None:
+            raise ValueError("SplitLightningDataModule requires non-empty train_fit loader")
+        self._dataset_name = name
+        self.category = category
+        self.splits = splits
+
+    @property
+    def name(self) -> str:
+        """Dataset identifier used by Anomalib Engine workspace setup."""
+        return self._dataset_name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._dataset_name = value
+
+    def setup(self, stage: str | None = None) -> None:
+        """No-op: deterministic splits are preloaded and validated before trainer setup."""
+        del stage
+
+    def _setup(self, _stage: str | None = None) -> None:
+        del _stage
+
+    def train_dataloader(self) -> DataLoader[Any]:
+        """Return normal-only training dataloader."""
+        if self.splits.train_fit is None:
+            raise ValueError("train_fit loader is None")
+        return self.splits.train_fit
+
+    def val_dataloader(self) -> DataLoader[Any]:
+        """Return normal-only validation dataloader (zero test leakage)."""
+        return self.splits.val_normal
+
+    def test_dataloader(self) -> DataLoader[Any]:
+        """Return isolated evaluation test dataloader."""
+        return self.splits.test

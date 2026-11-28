@@ -14,6 +14,7 @@ import torch
 from anomalib.data import ImageBatch
 from anomalib.engine import Engine
 from anomalib.models import Patchcore
+from anomalib.models.components import AnomalibModule
 from torch.utils.data import DataLoader
 
 from research.benchmarks.anomalib_data import load_split_dataloaders
@@ -104,12 +105,12 @@ def build_patchcore_model(cfg: ExperimentConfig) -> Patchcore:
 
 
 def predict_on_dataloader(
-    model: Patchcore,
+    model: AnomalibModule,
     dataloader: DataLoader[ImageBatch],
     *,
     device: torch.device,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Run ``PatchcoreModel`` inference on all batches and return scores, maps, labels, masks."""
+    """Run ``AnomalibModule`` inference on all batches and return scores, maps, labels, masks."""
     model.eval()
     model.to(device)
 

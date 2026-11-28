@@ -86,7 +86,7 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 
 | ID | Task | Status | Depends | Definition of Done |
 |---|---|---|---|---|
-| T-011 | EfficientAD runner (S variant) | `TODO` | T-010 | One category produces all metrics; training time recorded |
+| T-011 | EfficientAD runner (S variant) | `IN PROGRESS` | T-010 | One category produces all metrics; training time recorded |
 | T-012 | WinCLIP runner (zero-shot and k-shot reference) | `TODO` | T-010 | Same as above; prompt set documented |
 | T-013 | Sweep orchestrator over categories and datasets, resumable | `TODO` | T-010..T-012 | Interrupted sweep resumes without recomputing finished rows |
 | T-016 | Aggregation and plotting scripts (`make report`) | `TODO` | T-013 | Tables and figures regenerate from CSV only |
@@ -173,7 +173,7 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 **Sprint Goal:** Complete EfficientAD and WinCLIP runners, run all three models across MVTec and VisA categories via a resumable sweep orchestrator, and regenerate tables/figures cleanly via `make report`.
 
 **Priority order & status:**
-1. `TODO` — T-011 — EfficientAD runner (S variant; depends on T-010)
+1. `IN PROGRESS` — T-011 — EfficientAD runner (S variant implemented & unit-tested offline; awaiting real `bottle` GPU run)
 2. `TODO` — T-012 — WinCLIP runner (zero-shot `k=0` and few-shot reference; depends on T-010)
 3. `TODO` — T-013 — Sweep orchestrator over categories and datasets, resumable (depends on T-010..T-012)
 4. `TODO` — T-016 — Aggregation and plotting scripts (`make report`; depends on T-013)
