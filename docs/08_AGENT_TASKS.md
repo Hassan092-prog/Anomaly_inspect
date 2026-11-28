@@ -80,7 +80,7 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 | ID | Task | Status | Depends | Definition of Done |
 |---|---|---|---|---|
 | T-010 | PatchCore runner through Anomalib (fit, predict, evaluate) `REVIEW GATE` | `DONE` | T-004..T-008 | One category (bottle) produces all metrics and a results row |
-| T-015 | Profiler (latency p50/p95, peak mem, bank size) | `TODO` | T-010 | Methodology matches `05` section 3.9; hardware recorded; PatchCore profiled (reused by S3 models) |
+| T-015 | Profiler (latency p50/p95, peak mem, bank size) | `DONE` | T-010 | Methodology matches `05` section 3.9; hardware recorded; PatchCore profiled (reused by S3 models) |
 
 ### Sprint 3 — All Baselines on MVTec
 
@@ -174,7 +174,7 @@ Status markers: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` | `CUT`
 
 **Priority order & status:**
 1. `DONE` — T-010 — PatchCore runner through Anomalib (`research/benchmarks/patchcore_runner.py`, `results/results.csv` row on `mvtec/bottle`)
-2. `TODO` — T-015 — Profiler (latency p50/p95, peak mem, bank size; depends on T-010)
+2. `DONE` — T-015 — Profiler (`research/benchmarks/profiler.py`, `mvtec/bottle` profiled on `homehp` CPU)
 
 **Blockers:** none (`mvtec/bottle` staged under `data/mvtec_ad/bottle` with splits under `data/splits/mvtec/bottle/`).
 

@@ -55,10 +55,13 @@ def run_from_config(
     *,
     device: str | None = None,
     write_results: bool = True,
+    profile: bool = True,
 ) -> ResultRow:
     """Dispatch benchmark run for the configured model."""
     if cfg.model.name == "patchcore":
-        return run_patchcore_experiment(cfg, device=device, write_results=write_results)
+        return run_patchcore_experiment(
+            cfg, device=device, write_results=write_results, profile=profile
+        )
     raise ValueError(
         f"Unsupported benchmark model {cfg.model.name!r} (only 'patchcore' in Sprint 2)"
     )
@@ -93,6 +96,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run fit/eval without appending to results CSV.",
     )
+    parser.add_argument(
+        "--no-profile",
+        action="store_true",
+        help="Skip 10+100 latency/memory profiling after evaluation.",
+    )
     return parser
 
 
@@ -105,7 +113,12 @@ def _main() -> None:
     args = parser.parse_args()
     cfg = load_config(args.config)
     cfg = _apply_cli_overrides(cfg, args)
-    row = run_from_config(cfg, device=args.device, write_results=not args.no_results)
+    row = run_from_config(
+        cfg,
+        device=args.device,
+        write_results=not args.no_results,
+        profile=not args.no_profile,
+    )
     bank_str = f"{row.bank_size_mb:.2f}MB" if row.bank_size_mb is not None else "n/a"
     print(
         f"[{row.model}] {row.dataset}/{row.category} (k={row.k_shot}, seed={row.seed}): "

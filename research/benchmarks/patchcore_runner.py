@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import math
-import platform
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -17,6 +17,7 @@ from anomalib.models import Patchcore
 from torch.utils.data import DataLoader
 
 from research.benchmarks.anomalib_data import load_split_dataloaders
+from research.benchmarks.profiler import ProfileResult, profile_inference, resolve_device_string
 from research.common.config import (
     ExperimentConfig,
     collect_env_versions,
@@ -82,25 +83,6 @@ def summarize_val_stats(
         stats["map_std"] = float(np.std(maps))
         stats["map_p99"] = float(np.percentile(maps, 99.0))
     return stats
-
-
-def resolve_device_string(device: str | None = None) -> tuple[str, str]:
-    """Resolve execution device (``cpu`` / ``cuda``) and human-readable hardware string."""
-    if device is None:
-        resolved = "cuda" if torch.cuda.is_available() else "cpu"
-    else:
-        resolved = device.lower().strip()
-        if resolved not in {"cpu", "cuda"}:
-            raise ValueError(f"Unsupported device {device!r}; expected 'cpu' or 'cuda'")
-        if resolved == "cuda" and not torch.cuda.is_available():
-            raise RuntimeError("CUDA requested but torch.cuda.is_available() is False")
-
-    if resolved == "cuda":
-        hw = f"cuda:{torch.cuda.get_device_name(0)}"
-    else:
-        proc = platform.processor().strip() or platform.machine()
-        hw = f"cpu ({proc})"
-    return resolved, hw
 
 
 def build_patchcore_model(cfg: ExperimentConfig) -> Patchcore:
@@ -247,6 +229,9 @@ def run_patchcore_experiment(
     device: str | None = None,
     write_results: bool = True,
     results_path: str | Path | None = None,
+    profile: bool = False,
+    warmup_runs: int = 10,
+    timed_runs: int = 100,
 ) -> ResultRow:
     """Run one reproducible PatchCore fit/val/test experiment and optionally append CSV row."""
     if cfg.model.name != "patchcore":
@@ -284,7 +269,9 @@ def run_patchcore_experiment(
         enable_model_summary=False,
         enable_progress_bar=False,
     )
+    t_fit_start = time.perf_counter()
     engine.fit(model=model, train_dataloaders=splits.train_fit)
+    fit_time_s = time.perf_counter() - t_fit_start
 
     torch_device = torch.device(exec_device)
     val_scores, val_maps, val_labels, _ = predict_on_dataloader(
@@ -313,6 +300,34 @@ def run_patchcore_experiment(
         model, splits.test, device=torch_device
     )
 
+    prof: ProfileResult | None = None
+    if profile:
+        crop = cfg.preprocess.crop_size
+        sample = torch.randn((1, 3, crop, crop), dtype=torch.float32)
+        bank_tensor = model.model.memory_bank
+        tensor_mb = float(bank_tensor.numel() * bank_tensor.element_size()) / (1024.0 * 1024.0)
+        prof = profile_inference(
+            model.model,
+            sample,
+            device=exec_device,
+            warmup_runs=warmup_runs,
+            timed_runs=timed_runs,
+            model=model.model,
+            bank_path=model_path,
+            fit_time_s=fit_time_s,
+            memory_bank_tensor_mb=tensor_mb,
+        )
+
+    notes = (
+        f"n_train={len(splits.train_records)},n_val={len(splits.val_records)},"
+        f"n_test={len(splits.test_records)},fit_time_s={fit_time_s:.2f}"
+    )
+    if prof is not None:
+        notes = f"{notes},params={prof.param_count}"
+
+    measured_bank_mb = (
+        prof.bank_size_mb if prof is not None and prof.bank_size_mb is not None else bank_size_mb
+    )
     row = ResultRow(
         run_id=run_id,
         git_sha=git_sha,
@@ -334,11 +349,11 @@ def run_patchcore_experiment(
         aupro=compute_aupro(test_masks, test_maps),
         f1_max_image=compute_f1_max(test_labels, test_scores),
         f1_max_pixel=compute_f1_max(test_masks, test_maps),
-        bank_size_mb=bank_size_mb,
-        notes=(
-            f"n_train={len(splits.train_records)},n_val={len(splits.val_records)},"
-            f"n_test={len(splits.test_records)}"
-        ),
+        latency_ms_p50=prof.latency_ms_p50 if prof is not None else None,
+        latency_ms_p95=prof.latency_ms_p95 if prof is not None else None,
+        peak_mem_mb=prof.peak_mem_mb if prof is not None else None,
+        bank_size_mb=measured_bank_mb,
+        notes=notes,
     )
 
     if write_results:
