@@ -65,6 +65,12 @@ def validate_efficientad_config(cfg: ExperimentConfig) -> None:
             "EfficientAd normalizes inside PDN forward() and expects [0, 1] inputs "
             "(normalize_mean=(0,0,0), normalize_std=(1,1,1))"
         )
+    model_size = str(cfg.model.params.get("model_size", "small"))
+    if model_size not in {"small", "medium"}:
+        raise ValueError(f"model.params.model_size must be 'small' or 'medium', got {model_size!r}")
+    out_ch = int(cfg.model.params.get("teacher_out_channels", 384))
+    if out_ch <= 0:
+        raise ValueError(f"model.params.teacher_out_channels must be > 0, got {out_ch}")
 
 
 def build_efficientad_model(cfg: ExperimentConfig) -> EfficientAd:
@@ -207,8 +213,16 @@ def run_efficientad_experiment(
 
     max_epochs = int(params.get("max_epochs", 10))
     max_steps = int(params.get("max_steps", -1))
-    epoch_steps = max_epochs * len(splits.train_records)
-    effective_steps = epoch_steps if max_steps < 0 else min(max_steps, epoch_steps)
+    if max_epochs < 0 and max_steps < 0:
+        raise ValueError(
+            "EfficientAd requires either max_epochs > 0 or max_steps >= 2 (both are < 0)"
+        )
+    if max_epochs < 0:
+        effective_steps = max_steps
+    elif max_steps < 0:
+        effective_steps = max_epochs * len(splits.train_records)
+    else:
+        effective_steps = min(max_steps, max_epochs * len(splits.train_records))
     if effective_steps < 2:
         raise ValueError(
             "EfficientAd StepLR scheduler requires at least 2 total training steps "

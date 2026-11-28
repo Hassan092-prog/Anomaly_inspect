@@ -92,6 +92,13 @@ def test_efficientad_rejects_invalid_crop_or_double_normalization() -> None:
     with pytest.raises(ValueError, match=r"\[0, 1\] inputs"):
         validate_efficientad_config(bad_norm)
 
+    bad_size = replace(
+        base,
+        model=replace(base.model, params={**base.model.params, "model_size": "xl"}),
+    )
+    with pytest.raises(ValueError, match="model_size"):
+        validate_efficientad_config(bad_size)
+
 
 def test_efficientad_runner_end_to_end_synthetic_offline(
     tmp_path: Path,
@@ -167,16 +174,33 @@ def test_efficientad_runner_end_to_end_synthetic_offline(
     assert len(rows) == 1
     assert rows[0].model == "efficientad_s"
 
-    # Reject single-step training that would trigger StepLR(step_size=0) ZeroDivisionError.
-    one_step_cfg = replace(
+    # Step-controlled training (max_epochs=-1, max_steps=2) must work cleanly.
+    step_only_cfg = replace(
         cfg,
-        model=replace(cfg.model, params={**cfg.model.params, "max_steps": 1}),
+        model=replace(cfg.model, params={**cfg.model.params, "max_epochs": -1, "max_steps": 2}),
     )
-    with pytest.raises(ValueError, match="at least 2 total training steps"):
-        run_efficientad_experiment(
-            one_step_cfg,
-            artifact_root=artifact_root,
-            device="cpu",
-            write_results=False,
-            model_override=model,
+    step_model = build_efficientad_model(step_only_cfg)
+    monkeypatch.setattr(step_model, "prepare_pretrained_model", lambda: None)
+    step_row = run_efficientad_experiment(
+        step_only_cfg,
+        artifact_root=artifact_root,
+        device="cpu",
+        write_results=False,
+        model_override=step_model,
+    )
+    assert step_row.image_auroc is not None
+
+    # Reject unbounded or single-step training that crashes EfficientAd's StepLR(step_size=0).
+    for bad_limits in ({"max_epochs": -1, "max_steps": -1}, {"max_steps": 1}):
+        bad_cfg = replace(
+            cfg,
+            model=replace(cfg.model, params={**cfg.model.params, **bad_limits}),
         )
+        with pytest.raises(ValueError, match="EfficientAd"):
+            run_efficientad_experiment(
+                bad_cfg,
+                artifact_root=artifact_root,
+                device="cpu",
+                write_results=False,
+                model_override=model,
+            )
