@@ -258,8 +258,14 @@ def run_patchcore_experiment(
     exec_device, hw_desc = resolve_device_string(device)
 
     run_stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    run_id = f"{cfg.experiment_name}_{run_stamp}_{config_hash(cfg)[:6]}"
+    base_run_id = f"{cfg.experiment_name}_{run_stamp}_{config_hash(cfg)[:6]}"
+    run_id = base_run_id
     run_dir = Path(cfg.output_dir) / run_id
+    suffix = 1
+    while run_dir.exists():
+        suffix += 1
+        run_id = f"{base_run_id}_{suffix}"
+        run_dir = Path(cfg.output_dir) / run_id
     write_run_metadata(cfg, run_dir)
     git_sha = get_git_sha()
 
@@ -288,7 +294,11 @@ def run_patchcore_experiment(
         raise ValueError("Validation split contained non-normal labels")
     val_stats = summarize_val_stats(val_scores, val_maps)
 
-    artifact_dir = Path(artifact_root) / cfg.model.name / cfg.data.dataset / cfg.data.category
+    # Keep canonical artifacts/{model}/{dataset}/{category}/ strictly for clean full-shot runs.
+    if cfg.data.k_shot == "full" and cfg.shift.corruption == "none":
+        artifact_dir = Path(artifact_root) / cfg.model.name / cfg.data.dataset / cfg.data.category
+    else:
+        artifact_dir = run_dir / "artifacts"
     model_path = save_patchcore_artifacts(
         artifact_dir,
         model,

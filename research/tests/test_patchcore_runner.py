@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 from dataclasses import replace
 from pathlib import Path
@@ -16,6 +17,7 @@ from research.benchmarks.patchcore_runner import (
     run_patchcore_experiment,
     summarize_val_stats,
 )
+from research.benchmarks.run import _apply_cli_overrides
 from research.common.config import (
     DataConfig,
     ExperimentConfig,
@@ -201,6 +203,83 @@ def test_patchcore_runner_end_to_end_synthetic_offline(tmp_path: Path) -> None:
     assert len(rows) == 1
     assert rows[0].model == "patchcore"
     assert rows[0].category == "bottle"
+
+    # Re-running with the same seed reproduces metrics and does not overwrite run_dir.
+    row_repeat = run_patchcore_experiment(
+        cfg,
+        artifact_root=artifact_root,
+        device="cpu",
+        write_results=False,
+    )
+    assert row_repeat.image_auroc == pytest.approx(row.image_auroc)
+    assert row_repeat.pixel_auroc == pytest.approx(row.pixel_auroc)
+    assert row_repeat.aupro == pytest.approx(row.aupro)
+    assert row_repeat.run_id != row.run_id
+    assert len(list(runs_dir.iterdir())) == 2
+
+
+def test_split_mismatch_and_few_shot_artifact_isolation(tmp_path: Path) -> None:
+    """Reject stale val_split metadata mismatch and protect canonical artifacts on k-shot."""
+    data_dir = _create_synthetic_mvtec_category(tmp_path / "data", size=64, n_train=12)
+    create_category_splits("mvtec", data_dir / "mvtec_ad", "bottle", splits_dir=data_dir / "splits")
+
+    bad_val_cfg = ExperimentConfig(
+        data=DataConfig(dataset="mvtec", category="bottle", data_dir=str(data_dir), val_seed=9),
+        preprocess=PreprocessConfig(resize=64, crop_size=48),
+    )
+    with pytest.raises(ValueError, match="differs from config"):
+        load_split_dataloaders(bad_val_cfg)
+
+    runs_dir = tmp_path / "runs"
+    artifact_root = tmp_path / "artifacts"
+    few_cfg = ExperimentConfig(
+        experiment_name="k5_run",
+        seed=0,
+        output_dir=str(runs_dir),
+        data=DataConfig(dataset="mvtec", category="bottle", data_dir=str(data_dir), k_shot=5),
+        preprocess=PreprocessConfig(resize=64, crop_size=48),
+        model=ModelConfig(
+            name="patchcore",
+            backbone="resnet18",
+            coreset_sampling_ratio=0.5,
+            layers=("layer2",),
+            params={"num_neighbors": 3, "batch_size": 4, "num_workers": 0, "pre_trained": False},
+        ),
+    )
+    row = run_patchcore_experiment(
+        few_cfg, artifact_root=artifact_root, device="cpu", write_results=False
+    )
+    assert row.k_shot == 5
+    assert not (artifact_root / "patchcore" / "mvtec" / "bottle").exists()
+    assert any((runs_dir / d.name / "artifacts" / "model.pt").is_file() for d in runs_dir.iterdir())
+
+
+def test_cli_overrides_update_experiment_name_and_reject_bad_kshot() -> None:
+    """CLI override helper must keep experiment_name accurate and fail loud on bad k-shot."""
+    base = load_config("research/configs/patchcore_bottle.yaml")
+    ns = argparse.Namespace(
+        model=None,
+        dataset="visa",
+        category="candle",
+        k_shot="5",
+        seed=2,
+        results_csv=None,
+    )
+    updated = _apply_cli_overrides(base, ns)
+    assert updated.experiment_name == "patchcore_visa_candle_k5_seed2"
+    assert updated.data.k_shot == 5
+    assert updated.seed == 2
+
+    bad_ns = argparse.Namespace(
+        model=None,
+        dataset=None,
+        category=None,
+        k_shot="bad",
+        seed=None,
+        results_csv=None,
+    )
+    with pytest.raises(ValueError, match="--k-shot"):
+        _apply_cli_overrides(base, bad_ns)
 
 
 @pytest.mark.slow

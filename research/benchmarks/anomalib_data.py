@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import math
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -90,6 +92,18 @@ def load_split_dataloaders(
     data_root = resolve_dataset_root(cfg.data.data_dir, cfg.data.dataset)
     splits_dir = Path(cfg.data.data_dir) / "splits"
     split_file = _split_file_for_config(cfg, splits_dir)
+
+    val_split_file = splits_dir / cfg.data.dataset / cfg.data.category / "val_split.json"
+    if val_split_file.is_file():
+        val_meta = json.loads(val_split_file.read_text(encoding="utf-8"))
+        if val_meta.get("val_seed") != cfg.data.val_seed or not math.isclose(
+            float(val_meta.get("val_fraction", -1.0)), cfg.data.val_fraction, rel_tol=1e-9
+        ):
+            raise ValueError(
+                f"Existing split {val_split_file} uses val_fraction="
+                f"{val_meta.get('val_fraction')}, val_seed={val_meta.get('val_seed')}, "
+                f"which differs from config ({cfg.data.val_fraction}, {cfg.data.val_seed})"
+            )
 
     if not split_file.is_file() and create_splits_if_missing:
         if isinstance(cfg.data.k_shot, int) and cfg.data.k_shot > 0:

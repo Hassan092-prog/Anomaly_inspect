@@ -19,16 +19,31 @@ def _apply_cli_overrides(cfg: ExperimentConfig, args: argparse.Namespace) -> Exp
     if args.category is not None:
         data = replace(data, category=args.category)
     if args.k_shot is not None:
-        k_val: int | str = "full" if args.k_shot == "full" else int(args.k_shot)
+        if args.k_shot == "full":
+            k_val: int | str = "full"
+        else:
+            try:
+                k_val = int(args.k_shot)
+            except ValueError as exc:
+                raise ValueError(
+                    f"--k-shot must be 'full' or a non-negative integer, got {args.k_shot!r}"
+                ) from exc
         data = replace(data, k_shot=k_val)
     if args.model is not None:
         model = replace(model, name=args.model)
 
+    seed = args.seed if args.seed is not None else cfg.seed
+    exp_name = cfg.experiment_name
+    overrides = (args.model, args.dataset, args.category, args.k_shot, args.seed)
+    if any(x is not None for x in overrides):
+        exp_name = f"{model.name}_{data.dataset}_{data.category}_k{data.k_shot}_seed{seed}"
+
     updated = replace(
         cfg,
+        experiment_name=exp_name,
         data=data,
         model=model,
-        seed=args.seed if args.seed is not None else cfg.seed,
+        seed=seed,
         results_csv=str(args.results_csv) if args.results_csv is not None else cfg.results_csv,
     )
     validate_config(updated)
@@ -81,17 +96,25 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _fmt_metric(value: float | None) -> str:
+    return f"{value:.4f}" if value is not None else "n/a"
+
+
 def _main() -> None:
     parser = _build_parser()
     args = parser.parse_args()
     cfg = load_config(args.config)
     cfg = _apply_cli_overrides(cfg, args)
     row = run_from_config(cfg, device=args.device, write_results=not args.no_results)
+    bank_str = f"{row.bank_size_mb:.2f}MB" if row.bank_size_mb is not None else "n/a"
     print(
         f"[{row.model}] {row.dataset}/{row.category} (k={row.k_shot}, seed={row.seed}): "
-        f"img_auroc={row.image_auroc:.4f}, px_auroc={row.pixel_auroc:.4f}, "
-        f"aupro={row.aupro:.4f}, f1_img={row.f1_max_image:.4f}, "
-        f"f1_px={row.f1_max_pixel:.4f}, bank={row.bank_size_mb:.2f}MB"
+        f"img_auroc={_fmt_metric(row.image_auroc)}, "
+        f"px_auroc={_fmt_metric(row.pixel_auroc)}, "
+        f"aupro={_fmt_metric(row.aupro)}, "
+        f"f1_img={_fmt_metric(row.f1_max_image)}, "
+        f"f1_px={_fmt_metric(row.f1_max_pixel)}, "
+        f"bank={bank_str}"
     )
 
 
